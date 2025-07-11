@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chrome from "chrome-aws-lambda";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { url } = req.query;
@@ -9,7 +10,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const browser = await puppeteer.launch({ headless: "shell" });
+    const browser = await puppeteer.launch({
+      args: chrome.args, // Use chrome-aws-lambda args for serverless compatibility
+      executablePath: await chrome.executablePath, // Path to Chrome binary
+      headless: chrome.headless, // Use chrome-aws-lambda headless setting
+    });
+
     const page = await browser.newPage();
     await page.goto(url as string, {
       waitUntil: "domcontentloaded",
