@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import puppeteer from "puppeteer-core";
-import chrome from "chrome-aws-lambda";
+import chromium from "@sparticuz/chromium";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { url } = req.query;
@@ -11,15 +11,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const browser = await puppeteer.launch({
-      args: chrome.args, // Use chrome-aws-lambda args for serverless compatibility
-      executablePath: await chrome.executablePath, // Path to Chrome binary
-      headless: chrome.headless, // Use chrome-aws-lambda headless setting
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: "shell",
     });
 
     const page = await browser.newPage();
-    await page.goto(url as string, {
-      waitUntil: "domcontentloaded",
-    });
+    await page.goto(url, { waitUntil: "domcontentloaded" });
 
     const meta = await page.evaluate(() => {
       const get = (selector: string) =>
