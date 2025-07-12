@@ -24,6 +24,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         document.querySelector(selector)?.getAttribute("content") || null;
 
       return {
+        metaData: get("meta"),
         title: document.title || null,
         description:
           get('meta[name="description"]') ||
